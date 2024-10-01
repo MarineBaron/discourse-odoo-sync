@@ -1,4 +1,0 @@
-en:
-  site_settings:
-    discourse_odoo_sync_enabled: "Active sync with Odoo?"
-    discourse_odoo_sync_odoo_restapi_url: "Odoo RESTApi url"

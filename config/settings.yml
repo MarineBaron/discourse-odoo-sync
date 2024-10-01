@@ -1,8 +1,0 @@
-plugins:
-  discourse_odoo_sync_enabled:
-    default: false
-    client: true
-  discourse_odoo_sync_odoo_restapi_url:
-    default: https://orchidee.test.odoo.coopaname.coop/rest_api/discourse
-    client: true
-  discourse_odoo_sync_event_categories: [30]
