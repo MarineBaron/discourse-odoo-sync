@@ -1,7 +1,5 @@
 import { withPluginApi } from 'discourse/lib/plugin-api'
 
-const ODOO_RESTAPI_URL = "http://localhost:8069/rest_api/discourse"
-
 const updateOdooRegistrations = async (api, odooId, invitees, status) => {
   const currentUser = await api.container.lookup('store:main').find('user', api.getCurrentUser().username)
   const users = await   Promise.all(invitees
@@ -25,13 +23,20 @@ const updateOdooRegistrations = async (api, odooId, invitees, status) => {
       })
     }
   console.log("participants", users)
-  const odooResult = await fetch(`${ODOO_RESTAPI_URL}/event/event/${odooId}/registrations`, {
+  const odooResult = await fetch(`${getOdooRestApiUrl(api)}/event/event/${odooId}/registrations`, {
     method: "POST",
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({registrations: users})
   })
   console.log("after changeWatchingInviteeStatus odooRsult", odooResult)
 }
+
+const getOdooRestApiUrl = (api) => {
+  const siteSettings = api.container.lookup('site-settings:main')
+  console.log("siteSettings", siteSettings)
+  return siteSettings.discourse_odoo_sync_odoo_restapi_url
+}
+
 
 export default {
     name: 'odoo-sync',
