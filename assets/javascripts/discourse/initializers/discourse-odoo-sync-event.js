@@ -1,7 +1,7 @@
 import { withPluginApi } from "discourse/lib/plugin-api"
 
 // @TODO à supprimer ou mettre en paramètres
-const DISOURSE_RESTAPI_URL = "https://discourse.dev.coopaname.coop"
+const DISOURSE_RESTAPI_URL = "https://dev.discourse.coopaname.coop"
 
 
 const updatePostWithOdooId = async (post, odooId) => {
