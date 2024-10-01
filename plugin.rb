@@ -4,3 +4,10 @@
 # authors: Marine Monnier-Baron
 # url: https://github.com/MarineBaron/discourse-odoo-sync
 
+enabled_site_setting :discourse_odoo_sync_enabled
+
+module ::DiscourseOdooSync
+    PLUGIN_NAME = "discourse-odoo-sync"
+  end
+
+require_relative "lib/discourse_odoo_sync/engine"
