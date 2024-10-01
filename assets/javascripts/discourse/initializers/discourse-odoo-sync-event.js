@@ -1,9 +1,8 @@
 import { withPluginApi } from "discourse/lib/plugin-api"
-import { StoreService } from "discourse/services/store"
 
-const DISOURSE_RESTAPI_URL = "http://localhost:4200"
-const ODOO_RESTAPI_URL = "http://localhost:8069/rest_api/discourse"
-const EVENT_CATEGORIES = [5]
+// @TODO à supprimer ou mettre en paramètres
+const DISOURSE_RESTAPI_URL = "https://discourse.dev.coopaname.coop"
+
 
 const updatePostWithOdooId = async (post, odooId) => {
     const rawIndex = post.raw.indexOf(']')
@@ -77,8 +76,8 @@ const calcBodyFromTopic = (topic, post) => {
     }
 }
 
-const saveInOdoo = async (body) => {
-    const response = await fetch(`${ODOO_RESTAPI_URL}/event/event/save`, {
+const saveInOdoo = async (api, body) => {
+    const response = await fetch(`${getOdooRestApiUrl(api)}/event/event/save`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -87,11 +86,11 @@ const saveInOdoo = async (body) => {
     return json
 }
 
-const deleteInOdoo = async (post) => {
+const deleteInOdoo = async (api, post) => {
     const odooId = post.event.custom_fields?.odoo_id
     console.log("deleteInOdoo", post, odooId)
     if (odooId) {
-        const odoo_url = `${ODOO_RESTAPI_URL}/event/event/${odooId}/delete`
+        const odoo_url = `${getOdooRestApiUrl(api)}/event/event/${odooId}/delete`
         // @TODO DELETE ? 
         const odoo_response = await fetch(odoo_url)
         if (!odoo_response.ok) {
@@ -116,13 +115,19 @@ const updateOdooRegistrations = async (api, odooId, invitees) => {
         })}))
       
     console.log("participants", users)
-    const odooResult = await fetch(`${ODOO_RESTAPI_URL}/event/event/${odooId}/registrations`, {
+    const odooResult = await fetch(`${getOdooRestApiUrl(api)}/event/event/${odooId}/registrations`, {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({registrations: users})
     })
     console.log("after destroy odooRsult", odooResult)
   }
+
+const getOdooRestApiUrl = (api) => {
+    const siteSettings = api.container.lookup('site-settings:main')
+    console.log("siteSettings", siteSettings)
+    return siteSettings.discourse_odoo_sync_odoo_restapi_url
+}
 
 export default {
   name: "save",
@@ -151,7 +156,7 @@ export default {
                         const post = res.payload
                         if (post.event) {
                             console.log("odooo-sync model:post afterUpdate", res)
-                            await saveInOdoo(await calcBody(post))
+                            await saveInOdoo(api, await calcBody(post))
                         }
                         return super.afterUpdate(res)
                     }
@@ -170,7 +175,7 @@ export default {
                         if (post.event) {
                             console.log("odooo-sync model:topic update")
                             const body = calcBodyFromTopic(topic, post)
-                            await saveInOdoo(body)
+                            await saveInOdoo(api, body)
                         }
                     }
                 }
@@ -182,7 +187,7 @@ export default {
                     // if first post is an event, we delete it in Odoo
                     if (post?.event) {
                         console.log("odooo-sync model:topic destroy")
-                        deleteInOdoo(post)
+                        deleteInOdoo(api, post)
                     }
                     return result
                 }

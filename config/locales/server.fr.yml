@@ -1,0 +1,4 @@
+fr:
+  site_settings:
+    discourse_odoo_sync_enabled: "Activer la synchronisation avec Odoo ?"
+    discourse_odoo_sync_odoo_restapi_url: "Adresse de la RESTApi Odoo"
